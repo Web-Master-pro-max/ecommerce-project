@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - ShopHub</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .confirmation-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #388e3c, #2e7d32);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 3rem;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .confirmation-title {
+            font-size: 2rem;
+            color: #388e3c;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-number {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .order-number strong {
+            color: #2874f0;
+        }
+
+        .order-details-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2874f0;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            margin: 1.5rem 0;
+        }
+
+        .info-box h4 {
+            margin: 0 0 0.5rem;
+            color: #2874f0;
+        }
+
+        .info-box ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #555;
+        }
+
+        .info-box li {
+            margin-bottom: 0.3rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-outline-primary {
+            background: white;
+            border: 2px solid #2874f0;
+            color: #2874f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-outline-primary:hover {
+            background: #2874f0;
+            color: white;
+        }
+
+        .whatsapp-share {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .whatsapp-share:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <i class="fas fa-store"></i>
+                ShopHub
+            </div>
+            
+            <div class="nav-search">
+                <input type="text" id="search-input" placeholder="Search for products, brands and more...">
+                <button onclick="performSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/products"><i class="fas fa-box"></i> Products</a></li>
+                <li>
+                    <a href="/cart" class="cart-icon-wrapper">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-count" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li><a href="/orders"><i class="fas fa-truck"></i> Orders</a></li>
+            </ul>
+
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="/dashboard" class="btn btn-primary btn-sm"><i class="fas fa-user"></i> Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <div class="confirmation-container">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                
+                <h1 class="confirmation-title">Order Placed Successfully!</h1>
+                <p style="color: #666; font-size: 1.1rem;">Thank you for shopping with ShopHub</p>
+                
+                <div class="order-number">
+                    <span>Order Number: </span>
+                    <strong id="order-id">#12345678</strong>
+                </div>
+
+                <div class="order-details-card">
+                    <h3 style="margin-bottom: 1rem;">Order Details</h3>
+                    
+                    <div class="detail-row">
+                        <span class="detail-label">Order Date</span>
+                        <span class="detail-value" id="order-date">12 Jan 2024, 10:30 AM</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="detail-label">Payment Method</span>
+                        <span class="detail-value" id="payment-method">Credit Card</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="detail-label">Order Status</span>
+                        <span class="detail-value">
+                            <span class="status-badge status-pending" id="order-status">PENDING</span>
+                        </span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="detail-label">Total Amount</span>
+                        <span class="detail-value" id="order-total" style="color: #2874f0; font-size: 1.2rem;">₹1,299.00</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> What happens next?</h4>
+                    <ul>
+                        <li>You will receive an order confirmation email shortly</li>
+                        <li>We'll notify you when your order is shipped</li>
+                        <li>You can track your order from your dashboard</li>
+                        <li>Estimated delivery: 3-5 business days</li>
+                    </ul>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/orders" class="btn btn-primary">
+                        <i class="fas fa-truck"></i> Track Order
+                    </a>
+                    <a href="/products" class="btn-outline-primary">
+                        <i class="fas fa-shopping-bag"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Share Button -->
+    <div class="whatsapp-share" onclick="shareOnWhatsApp()">
+        <i class="fab fa-whatsapp"></i>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Need Help?</h3>
+                    <ul>
+                        <li><a href="/contact">Contact Us</a></li>
+                        <li><a href="/returns">Return Policy</a></li>
+                        <li><a href="/faq">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ShopHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        async function loadOrderConfirmation() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const orderId = params.get('orderId');
+
+                if (!orderId) {
+                    showAlert('Order ID not found', 'danger');
+                    return;
+                }
+
+                const data = await ordersAPI.getById(orderId);
+                
+                if (data.order) {
+                    const order = data.order;
+                    const total = order.OrderItems?.reduce((sum, item) => {
+                        return sum + (item.price * item.quantity);
+                    }, 0) || 0;
+
+                    document.getElementById('order-id').textContent = `#${order.id}`;
+                    document.getElementById('order-date').textContent = formatDate(order.created_at);
+                    document.getElementById('payment-method').textContent = order.payment_method || 'Credit Card';
+                    document.getElementById('order-status').textContent = order.status || 'PENDING';
+                    document.getElementById('order-total').textContent = formatPrice(total);
+                }
+            } catch (error) {
+                showAlert('Error loading order: ' + error.message, 'danger');
+            }
+        }
+
+        function shareOnWhatsApp() {
+            const orderId = document.getElementById('order-id').textContent;
+            const text = `I just placed an order ${orderId} on ShopHub! 🛍️ Check out their amazing products at https://shophub.com`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrderConfirmation);
+    </script>
+</body>
+</html>

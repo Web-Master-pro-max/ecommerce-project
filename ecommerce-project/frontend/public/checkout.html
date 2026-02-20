@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - ShopHub</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Checkout Page Specific Styles */
+        .checkout-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            width: calc(100% - 60px);
+            height: 2px;
+            background: #eaeaea;
+            top: 25px;
+        }
+
+        .step.active:not(:last-child)::after {
+            background: var(--flipkart-blue);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #eaeaea;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--flipkart-blue);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .step-info h4 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .step-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        .checkout-section-enhanced {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .section-header-with-edit {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .section-header-with-edit h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .edit-link {
+            color: var(--flipkart-blue);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .address-card {
+            border: 2px solid #eaeaea;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .address-card:hover {
+            border-color: var(--flipkart-blue);
+        }
+
+        .address-card.selected {
+            border-color: var(--flipkart-blue);
+            background: #e3f2fd;
+        }
+
+        .address-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .address-type {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .address-type.home {
+            background: #e3f2fd;
+            color: var(--flipkart-blue);
+        }
+
+        .address-type.work {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .payment-method-card {
+            border: 2px solid #eaeaea;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method-card:hover {
+            border-color: var(--flipkart-blue);
+        }
+
+        .payment-method-card.selected {
+            border-color: var(--flipkart-blue);
+            background: #e3f2fd;
+        }
+
+        .payment-method-card input[type="radio"] {
+            margin: 0;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .payment-icon i {
+            font-size: 1.5rem;
+        }
+
+        .payment-details {
+            flex: 1;
+        }
+
+        .payment-details h4 {
+            margin: 0 0 0.2rem 0;
+            font-size: 1rem;
+        }
+
+        .payment-details p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        .order-summary-enhanced {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: sticky;
+            top: 90px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-summary-enhanced > div:first-of-type {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .order-item-mini {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .order-item-mini:last-child {
+            border-bottom: none;
+        }
+
+        .order-item-mini-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .order-item-mini-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .order-item-mini-details {
+            flex: 1;
+        }
+
+        .order-item-mini-details h4 {
+            margin: 0 0 0.2rem 0;
+            font-size: 0.95rem;
+        }
+
+        .order-item-mini-price {
+            font-weight: bold;
+            color: var(--flipkart-blue);
+        }
+
+        .price-breakdown {
+            margin: 1rem 0;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .price-row.total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-top: 2px dashed #ddd;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .place-order-btn {
+            background: linear-gradient(135deg, var(--flipkart-blue), #1a4d8c);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .place-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 116, 240, 0.3);
+        }
+
+        .place-order-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <i class="fas fa-store"></i>
+                ShopHub
+            </div>
+            
+            <div class="nav-search">
+                <input type="text" id="search-input" placeholder="Search for products, brands and more...">
+                <button onclick="performSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/products"><i class="fas fa-box"></i> Products</a></li>
+                <li>
+                    <a href="/cart" class="cart-icon-wrapper">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-count" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li><a href="/orders"><i class="fas fa-truck"></i> Orders</a></li>
+            </ul>
+
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="/login" class="btn btn-primary btn-sm"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="/register" class="btn btn-outline btn-sm"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Checkout Steps -->
+            <div class="checkout-steps">
+                <div class="step active" id="step-1">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <h4>Login</h4>
+                        <p>Already have an account</p>
+                    </div>
+                </div>
+                <div class="step" id="step-2">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <h4>Delivery Address</h4>
+                        <p>Enter your address</p>
+                    </div>
+                </div>
+                <div class="step" id="step-3">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <h4>Payment</h4>
+                        <p>Choose payment method</p>
+                    </div>
+                </div>
+                <div class="step" id="step-4">
+                    <div class="step-number">4</div>
+                    <div class="step-info">
+                        <h4>Place Order</h4>
+                        <p>Review & confirm</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <!-- Checkout Form -->
+                <div>
+                    <!-- Delivery Address Section -->
+                    <div class="checkout-section-enhanced" id="address-section">
+                        <div class="section-header-with-edit">
+                            <h3><i class="fas fa-map-marker-alt" style="color: var(--flipkart-blue);"></i> Delivery Address</h3>
+                            <span class="edit-link" onclick="showAddressForm()">+ Add New Address</span>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;" id="address-list">
+                            <!-- Saved addresses will be shown here -->
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div class="checkout-section-enhanced" id="payment-section">
+                        <div class="section-header-with-edit">
+                            <h3><i class="fas fa-credit-card" style="color: var(--flipkart-blue);"></i> Payment Method</h3>
+                        </div>
+                        
+                        <div id="payment-methods">
+                            <!-- Payment methods loaded here -->
+                        </div>
+
+                        <!-- Card Details Form -->
+                        <div id="card-details" style="display: none; margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <h4 style="margin-bottom: 1rem;">Enter Card Details</h4>
+                            <div class="form-group">
+                                <label>Card Number</label>
+                                <input type="text" class="form-control" placeholder="1234 5678 9012 3456" id="card-number">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label>Expiry Date</label>
+                                    <input type="text" class="form-control" placeholder="MM/YY" id="card-expiry">
+                                </div>
+                                <div class="form-group">
+                                    <label>CVV</label>
+                                    <input type="password" class="form-control" placeholder="123" id="card-cvv">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Name on Card</label>
+                                <input type="text" class="form-control" placeholder="John Doe" id="card-name">
+                            </div>
+                        </div>
+
+                        <!-- UPI Section -->
+                        <div id="upi-details" style="display: none; margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <h4 style="margin-bottom: 1rem;">Enter UPI ID</h4>
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="username@okhdfcbank" id="upi-id">
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--secondary-color); margin-top: 0.5rem;">
+                                <i class="fas fa-info-circle"></i> You will be redirected to your UPI app to complete payment
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary Mobile (shown on desktop in sidebar) -->
+                </div>
+
+                <!-- Order Summary Sidebar -->
+                <div>
+                    <div class="order-summary-enhanced" id="order-summary">
+                        <!-- Order summary loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div id="address-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Address</h2>
+                <button class="modal-close" onclick="closeAddressModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="address-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" class="form-control" id="address-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="tel" class="form-control" id="address-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>PIN Code</label>
+                        <input type="text" class="form-control" id="address-pin" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address (House No, Building, Street)</label>
+                        <textarea class="form-control" id="address-line" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Landmark</label>
+                        <input type="text" class="form-control" id="address-landmark">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-control" id="address-city" required>
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" class="form-control" id="address-state" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address Type</label>
+                        <select class="form-control" id="address-type">
+                            <option value="home">Home</option>
+                            <option value="work">Work</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddressModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveAddress()">Save Address</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Footer -->
+    <footer>
+        <!-- ... footer content from home page ... -->
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        let cartData = null;
+        let selectedAddress = null;
+        let selectedPayment = 'card';
+
+        async function loadCheckout() {
+            try {
+                cartData = await cartAPI.getCart();
+                if (!cartData.items || cartData.items.length === 0) {
+                    window.location.href = '/cart';
+                    return;
+                }
+
+                loadAddresses();
+                loadPaymentMethods();
+                loadOrderSummary();
+            } catch (error) {
+                // Handle authentication errors
+                if (error.message.includes('Session expired')) {
+                    showAlert('Please login to continue checkout', 'warning');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                    return;
+                }
+                showAlert('Error loading checkout: ' + error.message, 'danger');
+            }
+        }
+
+        function loadAddresses() {
+            // Demo addresses
+            const addresses = [
+                {
+                    id: 1,
+                    name: 'John Doe',
+                    phone: '9876543210',
+                    address: '123, MG Road, Bangalore',
+                    city: 'Bangalore',
+                    state: 'Karnataka',
+                    pin: '560001',
+                    type: 'home'
+                },
+                {
+                    id: 2,
+                    name: 'John Doe',
+                    phone: '9876543210',
+                    address: '456, Tech Park, Whitefield',
+                    city: 'Bangalore',
+                    state: 'Karnataka',
+                    pin: '560066',
+                    type: 'work'
+                }
+            ];
+
+            const container = $('#address-list');
+            container.innerHTML = addresses.map(addr => `
+                <div class="address-card ${selectedAddress?.id === addr.id ? 'selected' : ''}" 
+                     onclick="selectAddress(${addr.id})">
+                    <input type="radio" name="address" value="${addr.id}" 
+                           ${selectedAddress?.id === addr.id ? 'checked' : ''}>
+                    <span class="address-type ${addr.type}">
+                        <i class="fas fa-${addr.type === 'home' ? 'home' : 'building'}"></i> ${addr.type}
+                    </span>
+                    <p style="margin: 0.5rem 0; font-weight: bold;">${addr.name}</p>
+                    <p style="margin: 0.2rem 0; font-size: 0.9rem;">${addr.address}</p>
+                    <p style="margin: 0.2rem 0; font-size: 0.9rem;">${addr.city}, ${addr.state} - ${addr.pin}</p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+                        <i class="fas fa-phone"></i> ${addr.phone}
+                    </p>
+                </div>
+            `).join('');
+
+            if (!selectedAddress && addresses.length > 0) {
+                selectAddress(addresses[0].id);
+            }
+        }
+
+        function loadPaymentMethods() {
+            const methods = [
+                { id: 'card', name: 'Credit/Debit Card', icon: 'fa-credit-card', desc: 'Pay with Visa, Mastercard, RuPay' },
+                { id: 'upi', name: 'UPI', icon: 'fa-mobile-alt', desc: 'Google Pay, PhonePe, Paytm' },
+                { id: 'netbanking', name: 'Net Banking', icon: 'fa-university', desc: 'All major banks' },
+                { id: 'cod', name: 'Cash on Delivery', icon: 'fa-money-bill-wave', desc: 'Pay when you receive' }
+            ];
+
+            const container = $('#payment-methods');
+            container.innerHTML = methods.map(method => `
+                <div class="payment-method-card ${selectedPayment === method.id ? 'selected' : ''}" 
+                     onclick="selectPayment('${method.id}')">
+                    <input type="radio" name="payment" value="${method.id}" 
+                           ${selectedPayment === method.id ? 'checked' : ''}>
+                    <div class="payment-icon">
+                        <i class="fas ${method.icon}"></i>
+                    </div>
+                    <div class="payment-details">
+                        <h4>${method.name}</h4>
+                        <p>${method.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            updatePaymentFields();
+        }
+
+        function selectAddress(addressId) {
+            selectedAddress = { id: addressId };
+            loadAddresses(); // Refresh to show selection
+        }
+
+        function selectPayment(method) {
+            selectedPayment = method;
+            loadPaymentMethods(); // Refresh to show selection
+            updatePaymentFields();
+        }
+
+        function updatePaymentFields() {
+            $('#card-details').style.display = selectedPayment === 'card' ? 'block' : 'none';
+            $('#upi-details').style.display = selectedPayment === 'upi' ? 'block' : 'none';
+        }
+
+        function loadOrderSummary() {
+            const subtotal = cartData.items.reduce((sum, item) => {
+                return sum + ((item.Product?.price || 0) * item.quantity);
+            }, 0);
+
+            const discount = subtotal * 0.3; // 30% discount
+            const delivery = subtotal > 999 ? 0 : 40;
+            const total = subtotal - discount + delivery;
+
+            const summary = $('#order-summary');
+            summary.innerHTML = `
+                <div style="display: flex; flex-direction: column; height: 100%; gap: 1rem;">
+                    <h3 style="margin-bottom: 0; flex-shrink: 0;">Order Summary</h3>
+                    
+                    <div style="max-height: 250px; overflow-y: auto; flex-shrink: 1;">
+                        ${cartData.items.map(item => `
+                            <div class="order-item-mini">
+                                <div class="order-item-mini-image">
+                                    <img src="${item.Product?.image_url || '/images/placeholder.png'}" alt="${item.Product?.name}">
+                                </div>
+                                <div class="order-item-mini-details">
+                                    <h4>${item.Product?.name}</h4>
+                                    <p style="font-size: 0.85rem; color: #666;">Qty: ${item.quantity}</p>
+                                </div>
+                                <div class="order-item-mini-price">
+                                    ${formatPrice((item.Product?.price || 0) * item.quantity)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="price-breakdown" style="flex-shrink: 0;">
+                        <div class="price-row">
+                            <span>Subtotal</span>
+                            <span>${formatPrice(subtotal)}</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Discount</span>
+                            <span style="color: var(--success-color);">- ${formatPrice(discount)}</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Delivery</span>
+                            <span style="color: ${delivery === 0 ? 'var(--success-color)' : 'inherit'};">
+                                ${delivery === 0 ? 'FREE' : formatPrice(delivery)}
+                            </span>
+                        </div>
+                        <div class="price-row total">
+                            <span>Total</span>
+                            <span style="color: var(--flipkart-blue);">${formatPrice(total)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="terms-checkbox" style="flex-shrink: 0;">
+                        <input type="checkbox" id="agree-terms" checked>
+                        <label for="agree-terms">I agree to the Terms & Conditions</label>
+                    </div>
+                    
+                    <button class="place-order-btn" onclick="placeOrder()" id="place-order-btn" style="flex-shrink: 0;">
+                        <i class="fas fa-lock"></i> PLACE ORDER
+                    </button>
+                    
+                    <p style="text-align: center; margin-top: 0; font-size: 0.85rem; color: var(--secondary-color); flex-shrink: 0;">
+                        <i class="fas fa-shield-alt"></i> Safe and Secure Payments
+                    </p>
+                </div>
+            `;
+        }
+
+        function showAddressForm() {
+            $('#address-modal').classList.add('active');
+        }
+
+        function closeAddressModal() {
+            $('#address-modal').classList.remove('active');
+        }
+
+        function saveAddress() {
+            // Save address logic
+            closeAddressModal();
+            showAlert('Address saved successfully!', 'success');
+        }
+
+        async function placeOrder() {
+            if (!selectedAddress) {
+                showAlert('Please select delivery address', 'warning');
+                return;
+            }
+
+            const btn = $('#place-order-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const orderData = {
+                    address_id: selectedAddress.id,
+                    payment_method: selectedPayment,
+                    items: cartData.items.map(item => ({
+                        product_id: item.product_id,
+                        quantity: item.quantity,
+                        price: item.Product?.price
+                    }))
+                };
+
+                const response = await ordersAPI.create(orderData);
+                
+                if (response.success) {
+                    await cartAPI.clearCart();
+                    showAlert('Order placed successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = `/order-confirmation?orderId=${response.order.id}`;
+                    }, 2000);
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-lock"></i> PLACE ORDER';
+                showAlert('Error placing order: ' + error.message, 'danger');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCheckout);
+    </script>
+</body>
+</html>

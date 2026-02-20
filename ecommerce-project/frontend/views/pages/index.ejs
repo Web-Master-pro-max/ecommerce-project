@@ -1,0 +1,96 @@
+<%- include('../partials/hero') %>
+
+<div class="container">
+    <!-- Featured Categories -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4">Shop by Category</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card category-card">
+                    <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400" class="card-img-top" alt="Electronics">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Electronics</h5>
+                        <a href="/products?category=electronics" class="btn btn-primary">Browse</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card category-card">
+                    <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=400" class="card-img-top" alt="Fashion">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Fashion</h5>
+                        <a href="/products?category=fashion" class="btn btn-primary">Browse</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card category-card">
+                    <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f7b92a?w=400" class="card-img-top" alt="Home & Living">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Home & Living</h5>
+                        <a href="/products?category=home" class="btn btn-primary">Browse</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4">Featured Products</h2>
+        <div class="row g-4" id="featured-products">
+            <!-- Products loaded via API -->
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load featured products
+        fetch('/api/products?limit=6&featured=true')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('featured-products');
+                container.innerHTML = data.products.map(product => `
+                    <div class="col-md-4 col-lg-4">
+                        <div class="card h-100 product-card">
+                            <img src="${product.image_url || 'https://via.placeholder.com/300'}" 
+                                 class="card-img-top" alt="${product.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${product.name}</h5>
+                                <p class="card-text text-muted">$${product.price}</p>
+                                <a href="/products/${product.id}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            });
+    });
+</script>
+
+<style>
+.category-card {
+    transition: transform 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.category-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.product-card {
+    transition: all 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+</style>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - ShopHub</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <i class="fas fa-store"></i>
+                ShopHub
+            </div>
+            
+            <div class="nav-search">
+                <input type="text" id="search-input" placeholder="Search for products, brands and more...">
+                <button onclick="performSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/products"><i class="fas fa-box"></i> Products</a></li>
+                <li>
+                    <a href="/cart" class="cart-icon-wrapper">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-count" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li><a href="/orders"><i class="fas fa-truck"></i> Orders</a></li>
+            </ul>
+
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="/login" class="btn btn-primary btn-sm"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="/register" class="btn btn-outline btn-sm"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <h1 style="margin-bottom: 2rem;">My Orders</h1>
+
+            <div id="orders-list" class="orders-list">
+                <!-- Orders loaded here -->
+            </div>
+
+            <!-- Empty Orders Message -->
+            <div id="empty-orders" style="text-align: center; padding: 2rem; display: none;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+                <h2>No Orders Yet</h2>
+                <p style="color: var(--secondary-color); margin-bottom: 1rem;">You haven't placed any orders yet. Start shopping now!</p>
+                <a href="/products" class="btn btn-primary">Shop Now</a>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" style="display: none; text-align: center; padding: 2rem;">
+                <div class="spinner"></div>
+                <p>Loading orders...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Order Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="order-details-content">
+                <!-- Order details loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>ShopHub is your trusted online shopping destination for quality products at unbeatable prices.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/products">Products</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="/orders">My Orders</a></li>
+                        <li><a href="/returns">Returns</a></li>
+                        <li><a href="/shipping">Shipping Info</a></li>
+                        <li><a href="/faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p>Email: support@shophub.com</p>
+                    <p>Phone: +91 1234567890</p>
+                    <p>Address: 123 Shopping Street, City, State 12345</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ShopHub. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms & Conditions</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        async function loadOrders() {
+            const loading = $('#loading');
+            const ordersList = $('#orders-list');
+            const emptyOrders = $('#empty-orders');
+
+            loading.style.display = 'block';
+            ordersList.innerHTML = '';
+            emptyOrders.style.display = 'none';
+
+            try {
+                const data = await ordersAPI.getAll();
+
+                loading.style.display = 'none';
+
+                if (data.orders && data.orders.length > 0) {
+                    ordersList.innerHTML = data.orders.map(order => {
+                        const statusClass = `status-${order.status?.toLowerCase() || 'pending'}`;
+                        const totalAmount = order.OrderItems?.reduce((sum, item) => {
+                            return sum + (item.price * item.quantity);
+                        }, 0) || 0;
+
+                        return `
+                            <div class="order-item" onclick="showOrderDetails(${order.id})">
+                                <div class="order-header">
+                                    <span class="order-id">Order #${order.id}</span>
+                                    <span class="order-status ${statusClass}">${order.status || 'PENDING'}</span>
+                                </div>
+                                <div class="order-details">
+                                    <div class="order-detail-item">
+                                        <span class="order-detail-label">Order Date</span>
+                                        <span>${formatDate(order.created_at)}</span>
+                                    </div>
+                                    <div class="order-detail-item">
+                                        <span class="order-detail-label">Total Amount</span>
+                                        <span>${formatPrice(totalAmount)}</span>
+                                    </div>
+                                    <div class="order-detail-item">
+                                        <span class="order-detail-label">Items</span>
+                                        <span>${order.OrderItems?.length || 0} item(s)</span>
+                                    </div>
+                                    <div class="order-detail-item">
+                                        <span class="order-detail-label">Delivery To</span>
+                                        <span>${order.city || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    emptyOrders.style.display = 'block';
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                // Handle authentication errors
+                if (error.message.includes('Session expired')) {
+                    showAlert('Please login to view your orders', 'warning');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                    return;
+                }
+                showAlert('Error loading orders: ' + error.message, 'danger');
+                emptyOrders.style.display = 'block';
+            }
+        }
+
+        function showOrderDetails(orderId) {
+            const modal = $('#order-details-modal');
+            const content = $('#order-details-content');
+
+            // Find order
+            const ordersList = $('#orders-list');
+            if (!ordersList.innerHTML) return;
+
+            try {
+                // Fetch order details
+                fetch(`/api/orders/${orderId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.order) {
+                            const order = data.order;
+                            const totalAmount = order.OrderItems?.reduce((sum, item) => {
+                                return sum + (item.price * item.quantity);
+                            }, 0) || 0;
+
+                            let html = `
+                                <div class="mb-3">
+                                    <h3 style="margin-bottom: 1rem;">Order #${order.id}</h3>
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                                        <div>
+                                            <p class="text-muted" style="font-size: 0.9rem;">Order Status</p>
+                                            <p style="font-weight: bold;">${order.status || 'PENDING'}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-muted" style="font-size: 0.9rem;">Order Date</p>
+                                            <p style="font-weight: bold;">${formatDate(order.created_at)}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-muted" style="font-size: 0.9rem;">Payment Method</p>
+                                            <p style="font-weight: bold;">${order.payment_method?.toUpperCase() || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-muted" style="font-size: 0.9rem;">Total Amount</p>
+                                            <p style="font-weight: bold; color: var(--success-color); font-size: 1.1rem;">${formatPrice(totalAmount)}</p>
+                                        </div>
+                                    </div>
+
+                                    <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Items:</h4>
+                                    <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                        ${order.OrderItems?.map(item => `
+                                            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                                <span>${item.Product?.name || 'Product'} x${item.quantity}</span>
+                                                <span>${formatPrice(item.price * item.quantity)}</span>
+                                            </div>
+                                        `).join('') || '<p>No items</p>'}
+                                    </div>
+
+                                    <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Shipping Address:</h4>
+                                    <p>
+                                        ${order.shipping_address}<br>
+                                        ${order.city}, ${order.state} ${order.postal_code}<br>
+                                        ${order.country}
+                                    </p>
+
+                                    <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Contact:</h4>
+                                    <p>
+                                        Name: ${order.customer_name}<br>
+                                        Email: ${order.email}<br>
+                                        Phone: ${order.phone}
+                                    </p>
+                                </div>
+                            `;
+
+                            content.innerHTML = html;
+                            modal.classList.add('active');
+                        }
+                    });
+            } catch (error) {
+                showAlert('Error loading order details: ' + error.message, 'danger');
+            }
+        }
+
+        function closeModal() {
+            const modal = $('#order-details-modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Search functionality
+        $('#search-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value;
+                if (query.trim()) {
+                    window.location.href = `/products?search=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+</html>
